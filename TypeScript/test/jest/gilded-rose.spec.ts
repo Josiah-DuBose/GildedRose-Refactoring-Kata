@@ -1,4 +1,4 @@
-import { Item, GildedRose } from '@/gilded-rose';
+import { SafeItem, GildedRose, Item } from '@/gilded-rose';
 const tests = require('../tests.json');
 
 describe('Gilded Rose', () => {
@@ -10,12 +10,30 @@ describe('Gilded Rose', () => {
         outQuality,
         outSellIn
       } = test
-      const gildedRose = new GildedRose([new Item(name, sellIn, quality)]);
+      const gildedRose = new GildedRose([new SafeItem(name, sellIn, quality)]);
       const items = gildedRose.updateQuality();
       expect(items[0].sellIn).toEqual(outSellIn);
       expect(items[0].quality).toEqual(outQuality);
     });
   }
+
+  it('handles conjured items sellIn > 0', () => {
+    const gildedRose = new GildedRose([new SafeItem('Conjured', 5, 50)]);
+    const items = gildedRose.updateQuality();
+    expect(items[0].quality).toEqual(48);
+  });
+
+  it('handles conjured items sellIn < 0', () => {
+    const gildedRose = new GildedRose([new SafeItem('Conjured', -1, 50)]);
+    const items = gildedRose.updateQuality();
+    expect(items[0].quality).toEqual(46);
+  });
+
+  it('handles conjured items quality < 0', () => {
+    const gildedRose = new GildedRose([new SafeItem('Conjured', -1, 1)]);
+    const items = gildedRose.updateQuality();
+    expect(items[0].quality).toEqual(0);
+  });
 
 
   // it('generate tests', () => {
